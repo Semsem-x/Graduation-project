@@ -19,22 +19,22 @@ title_font = pygame.font.SysFont(None, 100)
 button_font = pygame.font.SysFont(None, 60)
 number_font = pygame.font.SysFont(None, 50)
 
-# حجم الجريد
+# حجم الشبكه
 CELL_SIZE = min(WIDTH, HEIGHT) // 12
-GRID_X = (WIDTH - CELL_SIZE * 9) // 2
-GRID_Y = (HEIGHT - CELL_SIZE * 9) // 2
+block_X = (WIDTH - CELL_SIZE * 9) // 2
+block_Y = (HEIGHT - CELL_SIZE * 9) // 2
 
 # توليد جريد بسيط
 def generate_grid():
-    grid = [[0 for _ in range(9)] for _ in range(9)]
+    block = [[0 for _ in range(9)] for _ in range(9)]
     for i in range(9):
         for j in range(9):
             if random.randint(0, 1):
                 grid[i][j] = random.randint(1, 9)
-    return grid
+    return block
 
-# رسم الجريد
-def draw_grid(grid, selected):
+# رسم الشبكه
+def draw_block(block, selected):
     # رسم الخلايا
     for i in range(9):
         for j in range(9):
@@ -45,26 +45,25 @@ def draw_grid(grid, selected):
             if grid[i][j] != 0:
                 num = number_font.render(str(grid[i][j]), True, BLACK)
                 screen.blit(num, (rect.x + 15, rect.y + 10))
-
-    # خطوط سميكة
+                
     for i in range(10):
         thickness = 3 if i % 3 == 0 else 1
 
         pygame.draw.line(screen, BLACK,
-            (GRID_X, GRID_Y + i * CELL_SIZE),
-            (GRID_X + CELL_SIZE * 9, GRID_Y + i * CELL_SIZE),
+            (bLock_X, block_Y + i * CELL_SIZE),
+            (block_X + CELL_SIZE * 9, block_Y + i * CELL_SIZE),
             thickness)
 
         pygame.draw.line(screen, BLACK,
-            (GRID_X + i * CELL_SIZE, GRID_Y),
-            (GRID_X + i * CELL_SIZE, GRID_Y + CELL_SIZE * 9),
+            (block_X + i * CELL_SIZE, block_Y),
+            (block_X + i * CELL_SIZE, block_Y + CELL_SIZE * 9),
             thickness)
 
     # تحديد الخلية
     if selected:
         r, c = selected
         pygame.draw.rect(screen, BLUE,
-            (GRID_X + c*CELL_SIZE, GRID_Y + r*CELL_SIZE, CELL_SIZE, CELL_SIZE), 3)
+            (block_X + c*CELL_SIZE, block_Y + r*CELL_SIZE, CELL_SIZE, CELL_SIZE), 3)
 
 # شاشة البداية
 def welcome_page():
@@ -93,7 +92,7 @@ def welcome_page():
 
 # اللعبة
 def main():
-    grid = generate_grid()
+    block = generate_block()
     selected = None
 
     start_time = pygame.time.get_ticks()
@@ -106,7 +105,7 @@ def main():
         timer_text = number_font.render(f"Time: {elapsed}", True, BLACK)
         screen.blit(timer_text, (50, 50))
 
-        draw_grid(grid, selected)
+        draw_block(block, selected)
 
         pygame.display.update()
 
@@ -127,11 +126,38 @@ def main():
             # إدخال رقم
             if event.type == pygame.KEYDOWN and selected:
                 if pygame.K_1 <= event.key <= pygame.K_9:
-                    grid[selected[0]][selected[1]] = event.key - pygame.K_0
+                    num = event.key - pygame.K_0
+                    row, col = selected
+
+                if is_valid(grid, row, col, num):
+                    grid[row][col] = num
+else:
+    print("غلط ❌")
 
                 # مسح الرقم
                 if event.key == pygame.K_BACKSPACE:
-                    grid[selected[0]][selected[1]] = 0
+                    block[selected[0]][selected[1]] = 0
+            def is_valid(grid, row, col, num):
+    # تحقق من الصف
+    for i in range(9):
+        if block[row][i] == num:
+            return False
+
+    # تحقق من العمود
+    for i in range(9):
+        if blcok[i][col] == num:
+            return False
+
+    # تحقق من المربع 3×3
+    start_row = (row // 3) * 3
+    start_col = (col // 3) * 3
+
+    for i in range(3):
+        for j in range(3):
+            if grid[start_row + i][start_col + j] == num:
+                return False
+
+    return True
 
 # تشغيل
 welcome_page()
